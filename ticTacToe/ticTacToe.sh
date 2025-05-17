@@ -6,20 +6,25 @@ board=("-" "-" "-" "-" "-" "-" "-" "-" "-")
 current_player="X"
 
 
+bot_enabled=false
+
+
 #display the main menu
 menu() {
     echo "==== Tic Tac Toe ===="
     echo "1. New game"
-    echo "2. Load game"
-    echo "3. Exit"
+    echo "2. Play vs Bot"
+    echo "3. Load game"
+    echo "4. Exit"
     echo "Choose option: "
     read  choice
 
     #handle menu choices
     case $choice in
         1) new_game ;;
-        2) load_game ;;
-        3) exit ;;
+        2) new_game_vs_bot ;;
+        3) load_game ;;
+        4) exit ;;
         *) echo "Bad choice :("; menu ;;
     esac
 }
@@ -42,6 +47,8 @@ draw(){
 }
 
 
+
+
 #check if currrent player has won
 check_win(){
     if [[ "${board[0]}" = "$current_player" && "${board[1]}" = "$current_player" && "${board[2]}" = "$current_player" ]] ||
@@ -58,6 +65,21 @@ check_win(){
         menu
     fi
 }
+
+#function helper to check if there is a possibility of winning in next move
+check_win_possibility() {
+    local p=$1
+    [[ "${board[0]}" = "$p" && "${board[1]}" = "$p" && "${board[2]}" = "$p" ]] ||
+    [[ "${board[3]}" = "$p" && "${board[4]}" = "$p" && "${board[5]}" = "$p" ]] ||
+    [[ "${board[6]}" = "$p" && "${board[7]}" = "$p" && "${board[8]}" = "$p" ]] ||
+    [[ "${board[0]}" = "$p" && "${board[3]}" = "$p" && "${board[6]}" = "$p" ]] ||
+    [[ "${board[1]}" = "$p" && "${board[4]}" = "$p" && "${board[7]}" = "$p" ]] ||
+    [[ "${board[2]}" = "$p" && "${board[5]}" = "$p" && "${board[8]}" = "$p" ]] ||
+    [[ "${board[0]}" = "$p" && "${board[4]}" = "$p" && "${board[8]}" = "$p" ]] ||
+    [[ "${board[2]}" = "$p" && "${board[4]}" = "$p" && "${board[6]}" = "$p" ]]
+}
+
+
 
 #check if game is a draw
 check_draw(){
@@ -119,17 +141,85 @@ player_input(){
     else
         current_player="X"
     fi
-
+    if $bot_enabled && [ "$current_player" = "O" ]; then
+        bot_move
+        draw
+        check_win
+        check_draw
+        current_player="X"
+    fi
     
 }
-#starting new game, reseting board, and player
-new_game(){
-    board=("-" "-" "-" "-" "-" "-" "-" "-" "-")
-    current_player="X"
+
+game_loop(){
     draw
     while true; do
         player_input
     done
+}
+
+
+#bot tunr logic
+bot_move() {
+    echo "Bot's turn..."
+    sleep 1
+
+    #chcecking if bot could win
+    for i in {0..8}; do
+
+        if [ "${board[$i]}" = "-" ]; then
+            board[$i]=$current_player
+            if check_win_possibility "$current_player"; then
+            
+             return
+            fi
+            board[$i]="-"
+        fi
+    done
+
+    #chcecking if player could win and block
+    opponent="X"
+    for i in {0..8}; do
+
+        if [ "${board[$i]}" = "-" ]; then
+            board[$i]=$opponent
+            if check_win_possibility "$opponent"; then
+                board[$i]=$current_player
+                return
+
+            fi
+            board[$i]="-"
+        fi
+    done
+
+    #random move
+    while true; do
+        i=$((RANDOM % 9))
+        if [ "${board[$i]}" = "-" ]; then
+            board[$i]=$current_player
+            return
+        fi
+    done
+}
+
+
+
+
+#starting new game, reseting board, and player
+new_game(){
+    board=("-" "-" "-" "-" "-" "-" "-" "-" "-")
+    current_player="X"
+    bot_enabled=false
+    game_loop
+
+}
+
+#starting new game with bot
+new_game_vs_bot() {
+    board=("-" "-" "-" "-" "-" "-" "-" "-" "-")
+    current_player="X"
+    bot_enabled=true
+    game_loop
 }
 
 #save the current board and player to txt file
@@ -150,10 +240,7 @@ load_game() {
 
     echo "Game load: "
 
-    draw
-    while true; do
-        player_input
-    done
+    game_loop
 }
 
 
