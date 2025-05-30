@@ -34,27 +34,50 @@ function buildWalls (length: number, height: number) {
     //load blocks
     agent.setItem(COBBLESTONE, 64, 2)
     agent.setItem(STONE_BRICKS, 64, 3)
-    agent.setSlot(2)
-    //build 4 sides
+    agent.setItem(GLASS_PANE, 64, 4)
+    //compute middle pillar indices, they will be on the midle
+    mid1 = Math.floor((length - 1) / 2) - 1
+    mid2 = Math.floor((length - 1) / 2)
     for (let index = 0; index < 4; index++) {
-        for (let i = 0; i <= length - 2; i++) {
-            //(i+1)%3=>alt slot and lower
-            if ((i + 1) % 3 == 0) {
-                agent.setSlot(3)
-            } else {
-                agent.setSlot(2)
-            }
+        for (let i = 0; i <= length - 1 - 1; i++) {
+            let slot = ((i + 1) % 3 === 0) ? 3 : 2
+agent.setSlot(slot)
             h = height - (((i + 1) % 3 === 0) ? 1 : 0)
-            for (let index = 0; index < h; index++) {
-                agent.move(UP, 1)
-                agent.place(DOWN)
-            }
-            agent.move(FORWARD, 1)
-            for (let index = 0; index < h; index++) {
-                agent.move(DOWN, 1)
+            if (i == mid1 || i == mid2) {
+                //lower part
+                lower = Math.floor((h - 3) / 2)
+                for (let index = 0; index < lower; index++) {
+                    agent.move(UP, 1)
+                    agent.place(DOWN)
+                }
+                //window
+                agent.setSlot(4)
+                for (let index = 0; index < 3; index++) {
+                    agent.move(UP, 1)
+                    agent.place(DOWN)
+                }
+                //upper part (reuse slot)
+                agent.setSlot(slot)
+                for (let index = 0; index < h - lower - 3; index++) {
+                    agent.move(UP, 1)
+                    agent.place(DOWN)
+                }
+                agent.move(FORWARD, 1)
+                //descend and step forward
+                agent.move(DOWN, h)
+            } else {
+                //normal pillar
+                for (let index = 0; index < h; index++) {
+                    agent.move(UP, 1)
+                    agent.place(DOWN)
+                }
+                //move to next pillar
+                agent.move(FORWARD, 1)
+                agent.move(DOWN, h)
             }
         }
-        agent.turn(RIGHT_TURN)
+        //turn corner and step to next wall
+        agent.turn(RIGHT)
         agent.move(FORWARD, 1)
         agent.move(RIGHT, 1)
     }
