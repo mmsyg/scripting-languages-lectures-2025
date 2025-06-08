@@ -1,6 +1,7 @@
 require 'ruby2d'
 require_relative 'components/player'
 require_relative 'components/platform'
+require_relative 'components/point'
 
 # window settings
 set title: "Mario Ruby2D - Level 1 + Exit"
@@ -23,9 +24,9 @@ platforms << Platform.new(x: 800,  y: 437, width:  32, height: 113)
 
 platforms << Platform.new(x:1010,  y: 384, width: 132, height:  32)
 platforms << Platform.new(x:1350,  y: 466, width: 132, height:  207)
-platforms << Platform.new(x:1700,  y: 400, width: 132, height:  32)
-platforms << Platform.new(x:2000,  y: 300, width: 132, height:  32)
-platforms << Platform.new(x:2300,  y: 280, width: 132, height:  32)
+platforms << Platform.new(x:1680,  y: 400, width: 132, height:  32)
+platforms << Platform.new(x:1900,  y: 300, width: 132, height:  32)
+platforms << Platform.new(x:2200,  y: 280, width: 132, height:  32)
 
 
 
@@ -33,6 +34,8 @@ platforms << Platform.new(x:   1750,   y: 550, width: 450, height:  50, tile_pat
 platforms << Platform.new(x:   2400,   y: 550, width: 132, height:  32)
 platforms << Platform.new(x:   2650,   y: 550, width: 450, height:  50, tile_path: 'assets/floor.png')
 platforms << Platform.new(x:   3100,   y: 0, width: 1000, height:  1000)
+
+
 
 
 
@@ -47,6 +50,25 @@ exit_img    = Image.new(
   width:  exit_point.width,
   height: exit_point.height
 )
+
+
+# define coins
+points = []
+points << Point.new(x:  200, y: 500)
+points << Point.new(x:  300, y: 500)
+points << Point.new(x:  400, y: 300)
+points << Point.new(x:  1050, y: 300)
+points << Point.new(x: 1800, y: 500)
+points << Point.new(x: 2400, y: 230)
+points << Point.new(x: 2700, y: 500)
+points << Point.new(x: 3000, y: 500)
+
+
+# score display
+score      = 0
+score_text = Text.new("Coins: #{score}",
+                      x: Window.width - 140, y: 10,
+                      size:24, color: 'yellow')
 
 camera_x        = 0
 game_over       = false
@@ -78,6 +100,20 @@ on :key_down do |evt|
       #reset state
       camera_x   = 0
       game_over  = game_win = false
+
+      #reset coins and score
+      points.each(&:remove)
+      points.clear
+      points << Point.new(x:  200, y: 500)
+      points << Point.new(x:  300, y: 500)
+      points << Point.new(x:  400, y: 300)
+      points << Point.new(x:  1050, y: 300)
+      points << Point.new(x: 1800, y: 500)
+      points << Point.new(x: 2400, y: 230)
+      points << Point.new(x: 2700, y: 500)
+      points << Point.new(x: 3000, y: 500)
+      score = 0
+      score_text.text = "Coins: #{score}"
     end
   end
 end
@@ -126,6 +162,16 @@ update do
 
   #draw platforms
   platforms.each { |p| p.set_screen_position(camera_x) }
+
+    points.dup.each do |pt|
+    pt.set_screen_position(camera_x)
+    if player.collide_with?(pt)
+      pt.remove
+      points.delete(pt)
+      score += 1
+      score_text.text = "Coins: #{score}"
+    end
+  end
 
   #draw player
   player.sprite.x = player.x - camera_x
