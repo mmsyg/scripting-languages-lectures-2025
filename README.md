@@ -53,3 +53,17 @@ Kod: tetris
 :x: 5.0 Requirement 5 
 
 Kod: mario ruby2d
+
+**Assignment 5** Discord e-sport bot
+
+:white_check_mark: 3.0 Requirement 1 
+
+:white_check_mark: 3.5 Requirement 2 
+
+:white_check_mark: 4.0 Requirement 3 
+
+:white_check_mark: 4.5 Requirement 4 
+
+:x: 5.0 Requirement 5 
+
+Kod: e-sport bot
