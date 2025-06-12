@@ -62,7 +62,7 @@ Kod: mario ruby2d
 
 :white_check_mark: 4.0 Requirement 3 
 
-:white_check_mark: 4.5 Requirement 4 
+:white_check_mark: 4.5 Requirement 4  [Link to summary commit](https://github.com/mmsyg/scripting-languages-lectures-2025/tree/10fb05a3cda5b1e5de21142e5ddcb7c30c5e49aa/e-sport%20bot)
 
 :x: 5.0 Requirement 5 
 
